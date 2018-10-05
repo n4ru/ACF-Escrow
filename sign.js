@@ -14,9 +14,9 @@ const sign = (multi, second) => {
         } else {
             let keys = crypto.getKeys(pass);
             if (!tx.timestamp) tx.timestamp = arkjs.slots.getTime();
+            console.log("Passphrase:", pass, "\nPublic key:", crypto.getKeys(pass).publicKey);
             // First Signature Signing
             if (!multi && !second) {
-                console.log("Passphrase:", pass, "\nPublic key:", crypto.getKeys(pass).publicKey);
                 tx.senderPublicKey = keys.publicKey;
                 tx.senderId = crypto.getAddress(keys.publicKey);
                 if (!tx.recipientId) tx.recipientId = tx.senderId;
