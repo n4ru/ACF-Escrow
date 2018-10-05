@@ -1,4 +1,6 @@
-<div style="text-align:center"><img src ="https://i.imgur.com/aRgSztC.png" /></div>
+<p align="center">
+  <img src="https://i.imgur.com/aRgSztC.png">
+</p>
 
 # ACF Escrow Tool
 
