@@ -47,7 +47,7 @@ const sign = (multi, second) => {
 const send = (recipient, amount) => {
     let tx = {
         "type": 0,
-        "amount": amount,
+        "amount": amount * 100000000,
         "fee": 10000000,
         "recipientId": recipient
     }
