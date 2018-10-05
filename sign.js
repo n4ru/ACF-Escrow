@@ -1,11 +1,12 @@
 const arkjs = require('arkjs');
 const crypto = arkjs.crypto;
 const fs = require('fs');
-let tx;
 const pass = process.argv.slice(3).join(" ");
 
+const dump = tx => fs.writeFileSync('./tx.json', JSON.stringify(tx, null, 4));
+
 const sign = (multi, second) => {
-    tx = fs.existsSync('./tx.json') ? require('./tx.json') : null
+    let tx = fs.existsSync('./tx.json') ? require('./tx.json') : null
     if (tx) {
         if (!tx.type) tx.type = 0;
         if (!(!multi && !second) && !tx.signature) {
@@ -15,25 +16,28 @@ const sign = (multi, second) => {
             if (!tx.timestamp) tx.timestamp = arkjs.slots.getTime();
             // First Signature Signing
             if (!multi && !second) {
+                console.log("Passphrase:", pass, "\nPublic key:", crypto.getKeys(pass).publicKey);
                 tx.senderPublicKey = keys.publicKey;
                 tx.senderId = crypto.getAddress(keys.publicKey);
                 if (!tx.recipientId) tx.recipientId = tx.senderId;
                 tx.timestamp = arkjs.slots.getTime();
                 tx.signature = keys.sign(crypto.getHash(tx, true, true)).toDER().toString("hex");
+                console.log("Added first signature.")
             }
             // Second Signature Signing
             if (!multi && second) {
                 tx.signSignature = keys.sign(crypto.getHash(tx, true, true)).toDER().toString("hex");
+                console.log("Added second signature.")
             }
             // Multisig Signing
             if (multi) {
                 if (!tx.signatures) tx.signatures = [];
                 tx.signatures = tx.signatures.concat([keys.sign(crypto.getHash(tx, true, true)).toDER().toString("hex")])
+                console.log("Added multisignature.")
             }
             tx.id = crypto.getId(tx);
             if (multi) tx.ready = true;
-            console.log("Transaction signed!")
-            fs.writeFileSync('./tx.json', JSON.stringify(tx, null, 4));
+            dump(tx);
         }
     } else {
         console.log("No transaction found.")
@@ -41,30 +45,32 @@ const sign = (multi, second) => {
 }
 
 const send = (recipient, amount) => {
-    tx = {
+    let tx = {
         "type": 0,
         "amount": amount,
         "fee": 10000000,
         "recipientId": recipient
     }
-    fs.writeFileSync('./tx.json', JSON.stringify(tx, null, 4));
+    dump(tx);
+    console.log("Created normal transaction.");
 }
 
 const vote = (publicKey, voteType) => {
-    tx = {
-        "type": 1,
+    let tx = {
+        "type": 3,
         "amount": 0,
         "fee": 100000000,
-        "asset": { "votes": [`${publicKey}`] }
+        "asset": { "votes": [`${voteType ? '-' : '+'}${publicKey}`] }
     }
-    fs.writeFileSync('./tx.json', JSON.stringify(tx, null, 4));
+    dump(tx);
+    console.log("Created vote transaction.");
 }
 
 const create = (group) => {
     let min = group[0];
     group = group.slice(1);
-    if (min > 1 && min <= 16 && min <= group.length) {
-        tx = {
+    if (min > 1 && min <= 16 && min <= group.length && group.length <= 16) {
+        let tx = {
             "type": 4,
             "amount": 0,
             "fee": 500000000 + group.length * 500000000,
@@ -76,9 +82,10 @@ const create = (group) => {
                 }
             }
         }
-        fs.writeFileSync('./tx.json', JSON.stringify(tx, null, 4));
+        dump(tx);
+        console.log("Created multisig registration.");
     } else {
-        console.log("Minimum signatures must be greater than 1 and less than 17, and not exceed keys length.")
+        console.log("Minimum signatures must be greater than 1 and less than 17, and not exceed keys length.");
     }
 }
 
@@ -100,6 +107,9 @@ switch (process.argv[2]) {
         break;
     case "vote":
         vote(process.argv[3]);
+        break;
+    case "unvote":
+        vote(process.argv[3], true);
         break;
     case "makemulti":
         create(pass.split(" "))
