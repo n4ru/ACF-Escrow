@@ -33,11 +33,17 @@ Any transaction creation will overwrite the existing transaction saved to `tx.js
 
 Create a transaction to send ark to a receiving address. Amount is in ARK, not arktoshis.
 
-### Vote (Type 1)
+### Vote (Type 3)
 
 ```node sign.js <vote/unvote> <publickey>```
 
 Create a vote or unvote transaction for a delegate. Note that the delegate's public key must be provided, **NOT** their delegate name.
+
+### Register Second Passphrase (Type 1)
+
+```node sign.js makesecond <publickey>```
+
+Register a second passphrase.
 
 ### Register Multisig (Type 4)
 

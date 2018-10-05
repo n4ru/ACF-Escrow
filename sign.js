@@ -68,6 +68,21 @@ const vote = (publicKey, voteType) => {
     console.log("Created vote transaction.");
 }
 
+const makesecond = (pubkey) => {
+    let tx = {
+        "type": 1,
+        "amount": 0,
+        "fee": 500000000,
+        "asset": {
+            "signature": {
+                "publicKey": pubkey
+            }
+        }
+    }
+    dump(tx);
+    console.log("Created second passphrase registration.");
+}
+
 const create = (group) => {
     let min = group[0];
     group = group.slice(1);
@@ -112,6 +127,9 @@ switch (process.argv[2]) {
         break;
     case "unvote":
         vote(process.argv[3], true);
+        break;
+    case "makesecond":
+        makesecond(pass);
         break;
     case "makemulti":
         create(pass.split(" "))
