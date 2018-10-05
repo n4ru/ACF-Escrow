@@ -20,6 +20,8 @@ const sign = (multi, second) => {
                 tx.senderPublicKey = keys.publicKey;
                 tx.senderId = crypto.getAddress(keys.publicKey);
                 if (!tx.recipientId) tx.recipientId = tx.senderId;
+                delete tx.signatures;
+                delete tx.signSignature;
                 tx.timestamp = arkjs.slots.getTime();
                 tx.signature = keys.sign(crypto.getHash(tx, true, true)).toDER().toString("hex");
                 console.log("Added first signature.")
