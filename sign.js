@@ -18,8 +18,6 @@ const sign = (multi, second) => {
             // First Signature Signing
             if (!multi && !second) {
                 tx.senderPublicKey = keys.publicKey;
-                tx.senderId = crypto.getAddress(keys.publicKey);
-                if (!tx.recipientId) tx.recipientId = tx.senderId;
                 delete tx.signatures;
                 delete tx.signSignature;
                 tx.timestamp = arkjs.slots.getTime();
@@ -62,7 +60,10 @@ const vote = (publicKey, voteType) => {
         "type": 3,
         "amount": 0,
         "fee": 100000000,
-        "asset": { "votes": [`${voteType ? '-' : '+'}${publicKey}`] }
+        "asset": {
+            "votes": [`${voteType ? '-' : '+'}${publicKey}`]
+        },
+        "recipientId": crypto.getAddress(publicKey)
     }
     dump(tx);
     console.log("Created vote transaction.");
@@ -77,7 +78,8 @@ const makesecond = (pubkey) => {
             "signature": {
                 "publicKey": pubkey
             }
-        }
+        },
+        "recipientId": null
     }
     dump(tx);
     console.log("Created second passphrase registration.");
@@ -97,7 +99,8 @@ const create = (group) => {
                     "keysgroup": group.map(key => `+${key}`),
                     "lifetime": 24
                 }
-            }
+            },
+            "recipientId": null
         }
         dump(tx);
         console.log("Created multisig registration.");
