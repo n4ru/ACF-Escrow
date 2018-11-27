@@ -14,6 +14,7 @@ const sign = (multi, second) => {
         } else {
             let keys = crypto.getKeys(pass);
             if (!tx.timestamp) tx.timestamp = arkjs.slots.getTime();
+            if (tx.type == 3 && !tx.recipientId) tx.recipientId = crypto.getAddress(crypto.getKeys(pass).publicKey);
             console.log("Passphrase:", pass, "\nPublic key:", crypto.getKeys(pass).publicKey);
             // First Signature Signing
             if (!multi && !second) {
@@ -62,8 +63,7 @@ const vote = (publicKey, voteType) => {
         "fee": 100000000,
         "asset": {
             "votes": [`${voteType ? '-' : '+'}${publicKey}`]
-        },
-        "recipientId": crypto.getAddress(publicKey)
+        }
     }
     dump(tx);
     console.log("Created vote transaction.");
